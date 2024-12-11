@@ -16,15 +16,14 @@ os.chdir('/content/drive/MyDrive/datasets')       #To get the data
 # Load data
 x = np.load('x_train.npy')  # 11,000 x 64 x 64
 y = np.load('y_train.npy')
-
 x_test = np.load('x_test.npy')
 y_test = np.load('y_test.npy')
 
 #Converting the training and test sets to tensors
 x_tensor = torch.tensor(x, dtype=torch.float32).unsqueeze(1)
 
-#Here I am mapping the labels of y to match a zero indexed mapping
-#When submitting my predictions, I will map it back to the actual values representing the result of the equations
+#Here I am mapping the labels of y to match a zero-indexed mapping
+#When submitting my predictions, I will map them back to the actual values representing the result of the equations.
 label_mapping = {
     1: 0,
     2: 1,
@@ -94,7 +93,6 @@ optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
 
 #DATA AUGMENTATION TRANSFORMATIONS
-
 train_transformations= transforms.Compose([
     transforms.RandomApply([transforms.RandomRotation(20)], p=0.5),
     transforms.RandomApply([transforms.RandomAffine(degrees=0, translate=(0.1, 0.1))], p=0.5)
@@ -106,7 +104,6 @@ train_dataset = TensorDataset(x_tensor, y_tensor)
 train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
 
 for epoch in range(65):
-
     r_loss = 0.0
     for i,(inputs, labels) in enumerate(train_loader, 0):
 
