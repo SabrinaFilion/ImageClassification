@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 import os
 from google.colab import drive
 import torch
@@ -132,13 +133,31 @@ with torch.no_grad():  # No need to compute gradients during evaluation
     test_outputs = net (x_test_tensor)  #  test dataset as a tensor
     test_loss = criterion(test_outputs, y_test_tensor)  # Compare with test labels
     print(f'Test Loss: {test_loss.item()}')
+#Accuracy
+pred = torch.argmax(test_outputs, dim=1)
+correct_pred = (pred == y_test_tensor).sum().item()
+accuracy = (correct_pred/4500)*100   #divided by 4500 since that is the size of the half test set
+print(accuracy)
 
 
+#Function to produce a csv to submit to Kaggle
+def generate_csv_kaggle(y):
+    indexes = np.arange(len(y))
+    csv_labels = np.concatenate((indexes.reshape(-1,1), y.reshape(-1,1)),axis=1)  #Using same as above
+    df = pd.DataFrame(csv_labels,columns=['Id','Category'])
+    df['Id'] = df['Id'].astype(str)
+    df['Category'] = df['Category'].astype(str)
+    df.to_csv('predicted_labels.csv',index=False)
+    pass
 
+net.eval()
+with torch.no_grad():
+    yh_test = net (x_test_tensor_full)  #  generating predictions for the full test dataset
 
-
-
-
-
+#Adjusting the labels back to the value of the equation from the 0 indexed version
+reverse_label_mapping = {v: k for k, v in label_mapping.items()}
+yh_test= torch.argmax(yh_test, dim=1)
+yh_test= torch.tensor([reverse_label_mapping[label.item()] for label in yh_test])
+generate_csv_kaggle(yh_test)
 
 
